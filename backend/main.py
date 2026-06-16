@@ -24,14 +24,27 @@ app.add_middleware(
     allow_methods=["*"],  
     allow_headers=["*"],  
 )
+
 def get_db():
     db = SessionLocal()
     try:
         yield db
+    except Exception as e:
+        logger.error(f"Database connection error: {str(e)}")
+        raise
     finally:
         db.close()
 
 @app.get("/api/incidents")
 def get_incidents(db: Session = Depends(get_db)):
     logger.info("Запрос списка инцидентов")
-    return {"status": "success", "data": []}
+    try:
+        incidents = db.query(Incident).all()
+        incidents_data = [
+            {"id": inc.id, "title": inc.title, "status": inc.status}
+            for inc in incidents
+        ]
+        return {"status": "success", "data": incidents_data}
+    except Exception as e:
+        logger.error(f"Error fetching incidents: {str(e)}")
+        return {"status": "error", "data": [], "message": str(e)}
