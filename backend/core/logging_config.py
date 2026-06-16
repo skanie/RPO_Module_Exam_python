@@ -1,6 +1,8 @@
 import logging
 import os
-LOG_DIR = "/var/log/nexus_monitor_production/" 
+
+# Use local development path instead of production path
+LOG_DIR = "backend/logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
 logging.basicConfig(
